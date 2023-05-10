@@ -31,7 +31,7 @@ from xgboost import XGBClassifier
 # Plot
 import matplotlib.pyplot as plt
 
-def kfold_random_state(rs, ss):
+def kfold_random_state(rs, ss, note=''):
     # Get split datasets
     X_training, y_training, X_train, y_train, X_valid, y_valid, X_test, y_test = import_split_scale(random_state=rs, shuffle=ss)
 
@@ -60,12 +60,12 @@ def kfold_random_state(rs, ss):
     # do kfold
     kfold = cv_fold(all_models, X_training, y_training, X_test, y_test)
     print(kfold) # print
-    kfold.to_csv(current_dir+'/results/kfold_baseline_'+str(ss)+'_'+str(rs)+'.csv', index=False) # save the results
+    kfold.to_csv(current_dir+'/results/kfold/kfold_baseline_'+str(rs)+'_'+str(ss)+'_'+str(note)+'.csv', index=False) # save the results
 
     # Plot the results
     plot = plot_kfold_mcc(kfold) # call the function to get the plot
     plt.show() # display the plot
-    plot.savefig(current_dir+'/figures/kfold_mcc_plot_'+str(ss)+'_'+str(rs)+'.png') # save the plot
+    plot.savefig(current_dir+'/figures/kfold/'+str(rs)+'_'+str(ss)+'_'+str(note)+'.png') # save the plot
 
 
 # Set random Seed
