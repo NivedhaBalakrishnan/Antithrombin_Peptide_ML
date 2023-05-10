@@ -16,7 +16,7 @@ import pickle
 
 
 # Function
-def import_split_scale(random_state=33, shuffle=False):
+def import_split_scale(random_state=33, shuffle=42):
     """
     Import the datasets, split and scale the data.
 
@@ -49,7 +49,7 @@ def import_split_scale(random_state=33, shuffle=False):
     full_data = pd.concat([positive_data, negative_data])
 
     if shuffle==True:
-        full_data = full_data.sample(frac=1, random_state=42)
+        full_data = full_data.sample(frac=1, random_state=shuffle)
     
     X = full_data.drop(columns=['Class'])
     y = full_data['Class']
@@ -74,12 +74,12 @@ def import_split_scale(random_state=33, shuffle=False):
     scaler = MinMaxScaler()
 
     # Apply Scaler to X_training
-    X_training_mms = scaler.fit_transform(X_training)
+    X_training_mms = pd.DataFrame(scaler.fit_transform(X_training), index=X_training.index, columns=X_training.columns)
 
     # Apply same to others
-    X_train_mms = scaler.transform(X_train)
-    X_valid_mms = scaler.transform(X_valid)
-    X_test_mms  = scaler.transform(X_test)
+    X_train_mms = pd.DataFrame(scaler.transform(X_train), index=X_train.index, columns=X_train.columns)
+    X_valid_mms = pd.DataFrame(scaler.transform(X_valid), index=X_valid.index, columns=X_valid.columns)
+    X_test_mms  = pd.DataFrame(scaler.transform(X_test), index=X_test.index, columns=X_test.columns)
 
     # Get current directory
     current_dir = os.getcwd()
