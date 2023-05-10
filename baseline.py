@@ -1,3 +1,0 @@
-from data_preprocessing.preprocessing import import_split_scale
-
-import_split_scale()

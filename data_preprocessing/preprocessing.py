@@ -10,6 +10,10 @@ from sklearn.preprocessing import MinMaxScaler
 # Import feature extraction
 from data_preprocessing.feature_extraction import extract_feature
 
+# save model
+import os
+import pickle
+
 
 # Function
 def import_split_scale(random_state=33, shuffle=False):
@@ -77,5 +81,12 @@ def import_split_scale(random_state=33, shuffle=False):
     X_valid_mms = scaler.transform(X_valid)
     X_test_mms  = scaler.transform(X_test)
 
+    # Get current directory
+    current_dir = os.getcwd()
+    
+    # Save scaler in pickle file
+    with open(current_dir+'/dependency/Scaler.pkl', 'wb') as f:
+        pickle.dump(scaler, f)
+    
     # Return 4 sets of features and target
     return X_training_mms, y_training, X_train_mms, y_train, X_valid_mms, y_valid, X_test_mms, y_test
