@@ -25,6 +25,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
 
+# save model
+import pickle
+
 
 # tuning any model
 def tuning_model(X_training, y_training, model_params, k, iter, seed, note):
@@ -66,9 +69,10 @@ def tuning_model(X_training, y_training, model_params, k, iter, seed, note):
     best_model = model.set_params(**best_params)
     model_dict = {'name': model_params['name'], 'model': best_model}
 
+    with open(class_dir+'/dependency/pickle/untrained/'+model_params['name']+note+'.pkl', 'rb') as f:
+           pickle.dump(best_model, f)
+
     return model_dict
-
-
 
 # Functions to get model parameters
 def get_svcrbf_params():
