@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 # Import feature extraction
-from data_preprocessing.feature_extraction import extract_feature
+from data_preprocessing_packages.feature_extraction import extract_feature
 
 # save model
 import os

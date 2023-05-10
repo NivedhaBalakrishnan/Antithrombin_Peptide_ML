@@ -14,6 +14,6 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 # Import module from the package
-from data_preprocessing.preprocessing import import_split_scale
+from data_preprocessing_packages.preprocessing import import_split_scale
 
 import_split_scale()
