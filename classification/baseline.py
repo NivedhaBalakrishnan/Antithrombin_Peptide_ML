@@ -47,12 +47,12 @@ def kfold_random_state(rs, ss, note=''):
 
 
     # Create dictionary for each models
-    svm_rbf_model = {'name':'SVM RBF','model':svc_rbf}
-    svm_linear_model = {'name':'SVM Linear','model':svc_lin}
-    logistic_model = {'name':'Logistic','model':logistic}
-    random_model = {'name':'Random','model':random}
-    knn_model = {'name':'KNN','model':knn}
-    xgboost_model = {'name':'XGB','model':xgb}
+    svm_rbf_model = {'name':'svcrbf','model':svc_rbf}
+    svm_linear_model = {'name':'svclin','model':svc_lin}
+    logistic_model = {'name':'logistic','model':logistic}
+    random_model = {'name':'random','model':random}
+    knn_model = {'name':'knn','model':knn}
+    xgboost_model = {'name':'xgb','model':xgb}
 
     # collect all the models in a list
     all_models = [svm_rbf_model, svm_linear_model, logistic_model, random_model, knn_model, xgboost_model]

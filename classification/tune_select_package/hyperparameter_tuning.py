@@ -69,7 +69,7 @@ def tuning_model(X_training, y_training, model_params, k, iter, seed, note):
     best_model = model.set_params(**best_params)
     model_dict = {'name': model_params['name'], 'model': best_model}
 
-    with open(class_dir+'/dependency/pickle/untrained/'+model_params['name']+note+'.pkl', 'rb') as f:
+    with open(class_dir+'/dependency/pickle/untrained/'+model_params['name']+'_'+note+'.pkl', 'wb') as f:
            pickle.dump(best_model, f)
 
     return model_dict
@@ -80,7 +80,7 @@ def get_svcrbf_params():
         params = {'gamma' : np.arange(0.001, 5, 0.001), 'C' :  np.arange(0.0001, 5, 0.0001)}
 
         # Model dictionary
-        svcrbf_params = {'name': 'SVC RBF', 'model': SVC(class_weight='balanced'), 'params': params}
+        svcrbf_params = {'name': 'svmrbf', 'model': SVC(class_weight='balanced'), 'params': params}
 
         return svcrbf_params
 
@@ -89,7 +89,7 @@ def get_svclin_params():
         params = {'gamma' : np.arange(0.001, 5, 0.001), 'C' :  np.arange(0.0001, 5, 0.0001)}
 
         # Model dictionary
-        svclin_params = {'name': 'SVC Lin', 'model': SVC(kernel='linear', class_weight='balanced'), 'params': params}
+        svclin_params = {'name': 'svmlin', 'model': SVC(kernel='linear', class_weight='balanced'), 'params': params}
 
         return svclin_params
 
@@ -99,7 +99,7 @@ def get_logistic_params():
         model = LogisticRegression(class_weight = 'balanced', solver = 'liblinear')
         
         # Model dictionary
-        logistic_params = {'name':'Logistic', 'model':model, 'params':params}
+        logistic_params = {'name':'logistic', 'model':model, 'params':params}
 
         return logistic_params
 
@@ -118,7 +118,7 @@ def get_random_params():
         model = RandomForestClassifier(class_weight='balanced')
         
         # Model dictionary
-        random_params = {'name':'Random', 'model':model, 'params':params}
+        random_params = {'name':'random', 'model':model, 'params':params}
 
         return random_params
 
@@ -128,7 +128,7 @@ def get_knn_params():
         model = KNeighborsClassifier()
         
         # Model dictionary
-        knn_params = {'name':'KNN', 'model':model, 'params':params}
+        knn_params = {'name':'knn', 'model':model, 'params':params}
 
         return knn_params
 
@@ -149,7 +149,7 @@ def get_xgb_params(y_training):
         weight = value_counts[0]/value_counts[1]
 
         # Model dictionary
-        xgb_params = {'name': 'XGB', 'model': XGBClassifier(scale_pos_weight=weight), 'params': params}
+        xgb_params = {'name': 'xgb', 'model': XGBClassifier(scale_pos_weight=weight), 'params': params}
 
         return xgb_params
 
@@ -174,4 +174,6 @@ def hypertune(X_training, y_training, k=5, iter=200, seed=33, note=''):
     knn = tuning_model(X_training, y_training, knn_params, k, iter, seed, note)
     xgb = tuning_model(X_training, y_training, xgb_params, k, iter, seed, note)
 
-    return svc_rbf, svc_lin, logistic, random, knn, xgb
+    all_models = [svc_rbf, svc_lin, logistic, random, knn, xgb]
+
+    return all_models
