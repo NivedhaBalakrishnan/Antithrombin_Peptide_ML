@@ -120,7 +120,6 @@ def rfe_modelling (rfe_models, X_training, y_training, X_test, y_test):
         with open(parent_dir+"/results/feature selection/features_"+model_dict['name']+".json", "w") as f:
             json.dump(all_features, f) # save features
         
-        print(X_rfe)
         
         # Get best features
         X_rfe_best = X_rfe.sort_values(by=['Validation MCC Score', 'Num Features'], ascending=[False, True])
