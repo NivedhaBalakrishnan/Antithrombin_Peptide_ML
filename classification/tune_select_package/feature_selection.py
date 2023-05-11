@@ -74,6 +74,10 @@ def rfe_modelling (rfe_models, X_training, y_training, X_test, y_test):
     total = X_training.shape[1]
 
     for model_dict in rfe_models:
+
+        X_training_temp = X_training.copy()
+        # print(X_training_temp.shape)
+        
         print('\n\n\n')
         print(model_dict['name'])
         
@@ -83,27 +87,27 @@ def rfe_modelling (rfe_models, X_training, y_training, X_test, y_test):
         X_rfe = pd.DataFrame() # dataframe to save results
         
         print('Count Down')
-
+        
         for feature in reversed(range(1,total,1)):
-            print('In')
+            
             # Count down
             print(feature, end=' ')
         
             rfe_model = RFE(model, n_features_to_select=feature, step=1)
-            rfe_model.fit(X_training, y_training)
+            rfe_model.fit(X_training_temp, y_training)
             
-            X_selected = rfe_model.transform(X_training)
+            X_selected = rfe_model.transform(X_training_temp)
             X_selected_labels = rfe_model.get_support()
-            X_selected_features = list(filter(None, X_training.columns * X_selected_labels))
+            X_selected_features = list(filter(None, X_training_temp.columns * X_selected_labels))
         
             all_features[feature] = X_selected_features
         
-            X_training = pd.DataFrame(data=X_selected,columns=X_selected_features)
+            X_training_temp = pd.DataFrame(data=X_selected,columns=X_selected_features)
             
             # Change dataframe of X_test
-            X_test = X_test[X_training.columns.tolist()]
+            X_test = X_test[X_training_temp.columns.tolist()]
 
-            X_kfold = cv_fold([model_dict], X_training, y_training, X_test, y_test)
+            X_kfold = cv_fold([model_dict], X_training_temp, y_training, X_test, y_test)
             X_kfold['Num Features'] = feature
         
             X_rfe = pd.concat([X_rfe, X_kfold])
