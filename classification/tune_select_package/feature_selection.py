@@ -89,6 +89,8 @@ def rfe_modelling (rfe_models, X_training, y_training, X_test, y_test):
         print('Count Down')
         
         for feature in reversed(range(1,total,1)):
+
+            X_test_temp = X_test.copy()
             
             # Count down
             print(feature, end=' ')
@@ -105,9 +107,9 @@ def rfe_modelling (rfe_models, X_training, y_training, X_test, y_test):
             X_training_temp = pd.DataFrame(data=X_selected,columns=X_selected_features)
             
             # Change dataframe of X_test
-            X_test = X_test[X_training_temp.columns.tolist()]
+            X_test_temp = X_test_temp[X_training_temp.columns.tolist()]
 
-            X_kfold = cv_fold([model_dict], X_training_temp, y_training, X_test, y_test)
+            X_kfold = cv_fold([model_dict], X_training_temp, y_training, X_test_temp, y_test)
             X_kfold['Num Features'] = feature
         
             X_rfe = pd.concat([X_rfe, X_kfold])

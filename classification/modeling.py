@@ -30,16 +30,16 @@ def hypertuning(X_training, y_training, X_test, y_test, k=5, iter=5, seed=33, no
     # Get tuned model
     all_models = hypertune(X_training, y_training, k, iter, seed, note)
 
-    if note=='before_fs':
-        # Do kfold with tuned models
-        kfold = cv_fold(all_models, X_training, y_training, X_test, y_test)
-        print(kfold) # print
-        kfold.to_csv(current_dir+'/results/kfold/kfold_'+str(rs)+'_'+str(ss)+'_'+str(note)+'.csv', index=False) # save the results
+    # if note=='before_fs':
+    #     # Do kfold with tuned models
+    #     kfold = cv_fold(all_models, X_training, y_training, X_test, y_test)
+    #     print(kfold) # print
+    #     kfold.to_csv(current_dir+'/results/kfold/kfold_'+str(rs)+'_'+str(ss)+'_'+str(note)+'.csv', index=False) # save the results
 
-        # Plot the results
-        plot = plot_kfold_mcc(kfold) # call the function to get the plot
-        plt.show() # display the plot
-        plot.savefig(current_dir+'/figures/kfold/kfold_mcc'+str(rs)+'_'+str(ss)+'_'+str(note)+'.png') # save the plot
+    #     # Plot the results
+    #     plot = plot_kfold_mcc(kfold) # call the function to get the plot
+    #     plt.show() # display the plot
+    #     plot.savefig(current_dir+'/figures/kfold/kfold_mcc'+str(rs)+'_'+str(ss)+'_'+str(note)+'.png') # save the plot
 
     return all_models
 
@@ -62,7 +62,7 @@ iter = 200 # Set number of iteration for RandomizedSearchCV
 all_models = None
 
 # Get tuned models
-# all_models = hypertuning(X_training, y_training, X_test, y_test, k=5, iter=iter, seed=rs, note=note)
+all_models = hypertuning(X_training, y_training, X_test, y_test, k=5, iter=iter, seed=rs, note=note)
 
 mode = 'rfe' # or 'sfs' or 'both'
 
