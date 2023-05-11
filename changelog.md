@@ -1,0 +1,14 @@
+# Nivedha - May 11 7:50 AM
+- Peter ran
+    - Hypertune all models with all features
+    - RFE with SVC linear, Logistic Regression and Random Forest
+    - Hypertune SVC linear, Logistic Regression and Random Forest
+- Code Changes
+    - Code is ready for second run with RFE with XGB and SFS with SVC RBF and KNN
+- File Changes
+    - Dependency
+        - Merging tuned models for all features (before_fs) to main repo
+        - Merging tuned models for SVC linear, Logistic Regression and Random Forest (after_fs) to main repo
+        - Merging best features for SVC linear, Logistic Regression and Random Forest to main repo
+    - Results
+        - Merging results in hypertune and feature selection to main repo

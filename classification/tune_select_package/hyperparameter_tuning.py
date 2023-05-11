@@ -33,7 +33,7 @@ import json
 # tuning any model
 def tuning_model(X_training, y_training, model_params, k, iter, seed, note):
     # sanity check
-    print(model_params['name'], X_training.shape)
+#     print(model_params['name'], X_training.shape)
 
     # Unpack dictionary
     model = model_params['model']
@@ -170,21 +170,37 @@ def hypertune(X_training, y_training, k=5, iter=200, seed=33, note=''):
     knn_params = get_knn_params()
     xgb_params = get_xgb_params(y_training)
 
-    if note == 'after_fs':
-        with open(class_dir+'/dependency/features/best_features_svclin.json') as f:
-                svclin_features = json.load(f)
+#     if note == 'after_fs':
+#         with open(class_dir+'/dependency/features/best_features_svclin.json') as f:
+#                 svclin_features = json.load(f)
         
-        with open(class_dir+'/dependency/features/best_features_logistic.json') as f:
-                logistic_features = json.load(f)
+#         with open(class_dir+'/dependency/features/best_features_logistic.json') as f:
+#                 logistic_features = json.load(f)
         
-        with open(class_dir+'/dependency/features/best_features_random.json') as f:
-                random_features = json.load(f)
+#         with open(class_dir+'/dependency/features/best_features_random.json') as f:
+#                 random_features = json.load(f)
         
-        svc_lin = tuning_model(X_training[svclin_features], y_training, svclin_params, k, iter, seed, note)
-        logistic = tuning_model(X_training[logistic_features], y_training, logistic_params, k, iter, seed, note)
-        random = tuning_model(X_training[random_features], y_training, random_params, k, iter, seed, note)
+#         svc_lin = tuning_model(X_training[svclin_features], y_training, svclin_params, k, iter, seed, note)
+#         logistic = tuning_model(X_training[logistic_features], y_training, logistic_params, k, iter, seed, note)
+#         random = tuning_model(X_training[random_features], y_training, random_params, k, iter, seed, note)
     
-        all_models = [svc_lin, logistic, random]
+#         all_models = [svc_lin, logistic, random]
+
+    if note == 'after_fs':
+        with open(class_dir+'/dependency/features/best_features_svcrbf.json') as f:
+                svcrbf_features = json.load(f)
+        
+        with open(class_dir+'/dependency/features/best_features_knn.json') as f:
+                knn_features = json.load(f)
+        
+        with open(class_dir+'/dependency/features/best_features_xgb.json') as f:
+                xgb_features = json.load(f)
+        
+        svc_rbf = tuning_model(X_training[svcrbf_features], y_training, svcrbf_params, k, iter, seed, note)
+        knn = tuning_model(X_training[knn_features], y_training, knn_params, k, iter, seed, note)
+        xgb = tuning_model(X_training[xgb_features], y_training, xgb_params, k, iter, seed, note)
+    
+        all_models = [svc_rbf, knn, xgb]
     
     else:
     

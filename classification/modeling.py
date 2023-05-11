@@ -62,12 +62,14 @@ iter = 200 # Set number of iteration for RandomizedSearchCV
 all_models = None
 
 # Get tuned models
-all_models = hypertuning(X_training, y_training, X_test, y_test, k=5, iter=iter, seed=rs, note=note)
+# all_models = hypertuning(X_training, y_training, X_test, y_test, k=5, iter=iter, seed=rs, note=note)
 
-mode = 'rfe' # or 'sfs' or 'both'
+mode = 'both' # or 'rfe' or 'sfs'
+
 
 # --------------------------------- Feature Selection
 rfe_feature_dict = select_best_features(X_training, y_training, X_test, y_test, mode, all_models)
+
 
 # --------------------------------- After Feature Selection
 # Parameters

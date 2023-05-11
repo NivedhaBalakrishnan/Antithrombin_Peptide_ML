@@ -22,11 +22,18 @@ import pickle
 import pandas as pd
 
 # RFE
-from sklearn.feature_selection import RFE
+from sklearn.feature_selection import RFE, SequentialFeatureSelector as SFS
 
 
 # Get saved models
 def get_models():
+
+    """
+    Load tuned models from pickle files and return a dictionary of models.
+    
+    Returns:
+    - models (dict): A dictionary of models where the keys are the model names and the values are the model objects.
+    """
     
     # SVC RBF model
     with open(parent_dir+'/dependency/pickle/untrained/svcrbf_before_fs.pkl', 'rb') as f:
@@ -66,6 +73,20 @@ def get_models():
 
 # RFE function
 def rfe_modelling (rfe_models, X_training, y_training, X_test, y_test):
+
+    """
+    Perform Recursive Feature Elimination (RFE) on the given models using the training dataset.
+    
+    Parameters:
+    - rfe_models (dict): A dictionary of models with name and model objects.
+    - X_training (array-like): The feature matrix of the training dataset.
+    - y_training (array-like): The target variable of the training dataset.
+    - X_test (array-like): The feature matrix of the test dataset.
+    - y_test (array-like): The target variable of the test dataset.
+    
+    Returns:
+    - best_features_dict (dict): A dictionary with the model names as keys and the selected best features as values.
+    """
 
     # To save best features
     feature_dict = {}
@@ -151,21 +172,156 @@ def rfe_modelling (rfe_models, X_training, y_training, X_test, y_test):
 
 
 
-# Feature Selection
-def select_best_features(X_training, y_training, X_test, y_test, mode='rfe', all_models=None):
+
+def sfs_modelling(sfs_models, X_training, y_training, X_test, y_test):
+    """
+    Perform Sequential Forward Selection (SFS) on the given models using the training dataset.
     
+    Parameters:
+    - sfs_models (dict): A dictionary of models with name and model objects.
+    - X_training (array-like): The feature matrix of the training dataset.
+    - y_training (array-like): The target variable of the training dataset.
+    - X_test (array-like): The feature matrix of the test dataset.
+    - y_test (array-like): The target variable of the test dataset.
+    
+    Returns:
+    - best_features_dict (dict): A dictionary with the model names as keys and the selected best features as values.
+    """
+    # To save best features
+    feature_dict = {}
+
+    # Get total number of features
+    total = X_training.shape[1]
+
+    for model_dict in sfs_models:
+        
+        print('\n\n\n')
+        print(model_dict['name'])
+        
+        model = model_dict['model'] # get model
+        
+        all_features = {} # to save features in each iterations
+        X_sfs = pd.DataFrame() # dataframe to save results
+        
+        print('Count Down')
+        
+        for feature in range(1, total//2, 10):
+
+            # Get all the features before selecting the best ones
+            X_training_temp = X_training.copy()
+            X_test_temp = X_test.copy()
+            
+            # Count down
+            print(feature, end=' ')
+        
+            sfs_model = SFS(model, n_features_to_select=feature)
+            sfs_model.fit(X_training_temp, y_training)
+
+            best_features = X_training_temp.columns[sfs_model.support_].tolist()
+
+            print(best_features)            
+            
+            all_features[feature] = best_features
+        
+            X_training_temp = X_training_temp[best_features]
+            
+            # Change dataframe of X_test
+            X_test_temp = X_test_temp[X_training_temp.columns.tolist()]
+
+            X_kfold = cv_fold([model_dict], X_training_temp, y_training, X_test_temp, y_test)
+            X_kfold['Num Features'] = feature
+        
+            X_sfs = pd.concat([X_sfs, X_kfold])
+
+        print()
+        # Save Results
+        X_sfs.to_csv(parent_dir+'/results/feature selection/sfs_'+model_dict['name']+'.csv', index=False)  # RFE results
+        with open(parent_dir+"/results/feature selection/features_"+model_dict['name']+".json", "w") as f:
+            json.dump(all_features, f) # save features
+        
+        
+        # Get best features
+        X_sfs_best = X_sfs.sort_values(by=['Validation MCC Score', 'Num Features'], ascending=[False, True])
+        best_row = X_sfs_best.iloc[0]
+        
+        # Get best Num Features
+        num_features = best_row['Num Features'].astype(int)
+        
+        # Get the corresponding Train MCC Score and Test MCC Score
+        train_mcc = best_row['Train MCC Score'].astype(float)
+        valid_mcc = best_row['Validation MCC Score'].astype(float)
+        test_mcc = best_row['Test MCC Score'].astype(float)
+
+        # Print Results
+        print(f"Model: {model_dict['name']}")
+        print(f'Best Number of Features: {num_features}')
+        print(f'\tTrain MCC: {train_mcc}')
+        print(f'\tValid MCC: {valid_mcc}')
+        print(f'\tTest MCC:  {test_mcc}\n')
+
+        # Save best features in dependency folder
+        best_features = all_features[num_features]
+        with open(parent_dir+"/dependency/features/best_features_"+model_dict['name']+".json", "w") as f:
+            json.dump(best_features, f) # save best features
+    
+        feature_dict[model_dict['name']] = best_features
+
+    return feature_dict
+
+
+
+
+
+# Feature Selection
+def select_best_features(X_training, y_training, X_test, y_test, mode='both', all_models=None):
+    
+    """
+    Perform feature selection using RFE and/or SFS methods for a given set of models.
+
+    Parameters:
+    - X_training (pandas.DataFrame): The feature matrix for the training set.
+    - y_training (pandas.Series): The target variable for the training set.
+    - X_test (pandas.DataFrame): The feature matrix for the test set.
+    - y_test (pandas.Series): The target variable for the test set.
+    - mode (str): The feature selection mode. Options are 'rfe', 'sfs', or 'both'. Default is 'rfe'.
+    - all_models (dict): A dictionary containing custom models. Default is None, which loads tuned models.
+
+    Returns:
+    - final_dict (dict): A dictionary containing the selected features for each model based on the specified mode.
+    """
+
     # get trained models
     if all_models==None:
         svc_rbf, svc_lin, logistic, random, knn, xgb = get_models()        
     else:    
         svc_rbf, svc_lin, logistic, random, knn, xgb = all_models
 
+    
     # Models with RFE
-    rfe_models = [svc_lin, logistic, random]
-
+    rfe_models = [xgb]
+    
     # Do RFE
     if (mode == 'rfe') or (mode == 'both'):
         rfe_feature_dict = rfe_modelling(rfe_models, X_training, y_training, X_test, y_test)
 
-    return rfe_feature_dict
+    
+    # Models with SFS
+    sfs_models = [svc_rbf, knn]
+
+    #  Do SFS
+    if (mode == 'sfs') or (mode == 'both'):
+        sfs_feature_dict = sfs_modelling(sfs_models, X_training, y_training, X_test, y_test)
+
+    
+    # Return final dictionary with selected features based on mode
+    final_dict = {}
+    if mode == 'rfe':
+        final_dict.update(rfe_feature_dict)
+    elif mode == 'sfs':
+        final_dict.update(sfs_feature_dict)
+    else:
+        final_dict.update(rfe_feature_dict)
+        final_dict.update(sfs_feature_dict)
+    
+    return final_dict
 
