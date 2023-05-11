@@ -33,7 +33,7 @@ def cv_fold(all_models, X_training, y_training, X_test, y_test, fold=5):
 
     # Empty dataframe to save all results
     allKFold = pd.DataFrame()
-
+    
     # loop through all models
     for single_model in all_models:
 
@@ -57,7 +57,7 @@ def cv_fold(all_models, X_training, y_training, X_test, y_test, fold=5):
             # Generate train and test sets
             X_train_kfold, X_valid_kfold = X_training.iloc[train_index], X_training.iloc[test_index]
             y_train_kfold, y_valid_kfold = y_training.iloc[train_index], y_training.iloc[test_index]
-
+            
             # Model Fitting
             model.fit(X_train_kfold,y_train_kfold)
             

@@ -27,11 +27,14 @@ from xgboost import XGBClassifier
 
 # save model
 import pickle
+import json
 
 
 # tuning any model
 def tuning_model(X_training, y_training, model_params, k, iter, seed, note):
-    
+    # sanity check
+    print(model_params['name'], X_training.shape)
+
     # Unpack dictionary
     model = model_params['model']
     params = model_params['params']
@@ -80,7 +83,7 @@ def get_svcrbf_params():
         params = {'gamma' : np.arange(0.001, 5, 0.001), 'C' :  np.arange(0.0001, 5, 0.0001)}
 
         # Model dictionary
-        svcrbf_params = {'name': 'svmrbf', 'model': SVC(class_weight='balanced'), 'params': params}
+        svcrbf_params = {'name': 'svcrbf', 'model': SVC(class_weight='balanced'), 'params': params}
 
         return svcrbf_params
 
@@ -89,7 +92,7 @@ def get_svclin_params():
         params = {'gamma' : np.arange(0.001, 5, 0.001), 'C' :  np.arange(0.0001, 5, 0.0001)}
 
         # Model dictionary
-        svclin_params = {'name': 'svmlin', 'model': SVC(kernel='linear', class_weight='balanced'), 'params': params}
+        svclin_params = {'name': 'svclin', 'model': SVC(kernel='linear', class_weight='balanced'), 'params': params}
 
         return svclin_params
 
@@ -158,6 +161,7 @@ def get_xgb_params(y_training):
 # Hyperparameter tuning of all models
 def hypertune(X_training, y_training, k=5, iter=200, seed=33, note=''):
     
+    
     # Get model parameters
     svcrbf_params = get_svcrbf_params()
     svclin_params = get_svclin_params()
@@ -166,14 +170,32 @@ def hypertune(X_training, y_training, k=5, iter=200, seed=33, note=''):
     knn_params = get_knn_params()
     xgb_params = get_xgb_params(y_training)
 
-    # Hyperparameter tuning
-    svc_rbf = tuning_model(X_training, y_training, svcrbf_params, k, iter, seed, note)
-    svc_lin = tuning_model(X_training, y_training, svclin_params, k, iter, seed, note)
-    logistic = tuning_model(X_training, y_training, logistic_params, k, iter, seed, note)
-    random = tuning_model(X_training, y_training, random_params, k, iter, seed, note)
-    knn = tuning_model(X_training, y_training, knn_params, k, iter, seed, note)
-    xgb = tuning_model(X_training, y_training, xgb_params, k, iter, seed, note)
+    if note == 'after_fs':
+        with open(class_dir+'/dependency/features/best_features_svclin.json') as f:
+                svclin_features = json.load(f)
+        
+        with open(class_dir+'/dependency/features/best_features_logistic.json') as f:
+                logistic_features = json.load(f)
+        
+        with open(class_dir+'/dependency/features/best_features_random.json') as f:
+                random_features = json.load(f)
+        
+        svc_lin = tuning_model(X_training[svclin_features], y_training, svclin_params, k, iter, seed, note)
+        logistic = tuning_model(X_training[logistic_features], y_training, logistic_params, k, iter, seed, note)
+        random = tuning_model(X_training[random_features], y_training, random_params, k, iter, seed, note)
+    
+        all_models = [svc_lin, logistic, random]
+    
+    else:
+    
+        # Hyperparameter tuning
+        svc_rbf = tuning_model(X_training, y_training, svcrbf_params, k, iter, seed, note)
+        svc_lin = tuning_model(X_training, y_training, svclin_params, k, iter, seed, note)
+        logistic = tuning_model(X_training, y_training, logistic_params, k, iter, seed, note)
+        random = tuning_model(X_training, y_training, random_params, k, iter, seed, note)
+        knn = tuning_model(X_training, y_training, knn_params, k, iter, seed, note)
+        xgb = tuning_model(X_training, y_training, xgb_params, k, iter, seed, note)
 
-    all_models = [svc_rbf, svc_lin, logistic, random, knn, xgb]
+        all_models = [svc_rbf, svc_lin, logistic, random, knn, xgb]
 
     return all_models
