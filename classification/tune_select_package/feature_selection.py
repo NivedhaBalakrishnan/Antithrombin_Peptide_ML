@@ -206,20 +206,21 @@ def sfs_modelling(sfs_models, X_training, y_training, X_test, y_test):
         print('Count Down')
         
         for feature in range(1, total//2, 10):
+            # print('Hi')
+
+            # Count down
+            print(feature)
 
             # Get all the features before selecting the best ones
             X_training_temp = X_training.copy()
             X_test_temp = X_test.copy()
-            
-            # Count down
-            print(feature, end=' ')
         
             sfs_model = SFS(model, n_features_to_select=feature)
             sfs_model.fit(X_training_temp, y_training)
 
             best_features = X_training_temp.columns[sfs_model.support_].tolist()
 
-            print(best_features)            
+            # print(best_features)            
             
             all_features[feature] = best_features
         
@@ -306,7 +307,7 @@ def select_best_features(X_training, y_training, X_test, y_test, mode='both', al
 
     
     # Models with SFS
-    sfs_models = [svc_rbf, knn]
+    sfs_models = [knn]
 
     #  Do SFS
     if (mode == 'sfs') or (mode == 'both'):

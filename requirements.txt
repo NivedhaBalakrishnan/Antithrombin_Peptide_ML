@@ -8,4 +8,4 @@ pickleshare==0.7.5
 propy3==1.0.2
 pyfaidx==0.6.4
 scikit-learn==1.1.2
-xgboost==1.7.5
+xgboost==1.6.1

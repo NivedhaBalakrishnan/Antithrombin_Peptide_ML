@@ -1,5 +1,18 @@
 # Imports
 
+# For modules
+import os
+import sys
+
+# Get the path to the current directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the path to the parent directory
+parent_dir = os.path.dirname(current_dir)
+
+# Add the parent directory to the Python path
+sys.path.append(parent_dir)
+
 # Data Analysis
 import pandas as pd
 
@@ -8,12 +21,16 @@ from xgboost import XGBClassifier
 
 # K-Fold
 from sklearn.model_selection import StratifiedKFold
+from imblearn.over_sampling import SMOTE
 
 # Metrics
 from sklearn.metrics import accuracy_score, f1_score, matthews_corrcoef
 
+# File
+import json
+
 # Fucnction for K-fold
-def cv_fold(all_models, X_training, y_training, X_test, y_test, fold=5):
+def cv_fold(all_models, X_training, y_training, X_test, y_test, fold=5, note=''):
     """
     This function performs k-fold cross-validation on a list of models, and returns the mean and standard deviation of the performance metrics 
     on the training, validation and test sets for each model.
@@ -37,6 +54,16 @@ def cv_fold(all_models, X_training, y_training, X_test, y_test, fold=5):
     # loop through all models
     for single_model in all_models:
 
+        X_training_temp = X_training.copy()
+        X_test_temp = X_test.copy()
+
+        if note == 'final':
+            with open(parent_dir+'/dependency/features/best_features_'+single_model['name']+'.json') as json_file:
+                features = json.load(json_file)
+
+            X_training_temp = X_training_temp[features]
+            X_test_temp = X_test_temp[features]
+
         # for XGB change weight depending upon imbalance
         if single_model['name'] == 'XGB':
             value_counts = y_training.value_counts()
@@ -47,24 +74,27 @@ def cv_fold(all_models, X_training, y_training, X_test, y_test, fold=5):
         model = single_model['model']
         
         # Call StratifiedKFold function to split the data
-        skf = StratifiedKFold(n_splits=fold, random_state=42, shuffle=True)
+        skf = StratifiedKFold(n_splits=5, random_state=42, shuffle=True)
         
         # Creating empty dictionary to store 10 batches of performance metrics
         tempDf = pd.DataFrame()
         
         # Using for loop to loop through 10 batches
-        for train_index, test_index in skf.split(X_training,y_training):
+        for train_index, test_index in skf.split(X_training_temp,y_training):
             # Generate train and test sets
-            X_train_kfold, X_valid_kfold = X_training.iloc[train_index], X_training.iloc[test_index]
+            X_train_kfold, X_valid_kfold = X_training_temp.iloc[train_index], X_training_temp.iloc[test_index]
             y_train_kfold, y_valid_kfold = y_training.iloc[train_index], y_training.iloc[test_index]
             
+            smote = SMOTE(random_state=42)
+            X_train_kfold, y_train_kfold = smote.fit_resample(X_train_kfold, y_train_kfold)
+
             # Model Fitting
             model.fit(X_train_kfold,y_train_kfold)
             
             # Now we make the predictions on both the training and test sets of the model.
             y_pred_train_kfold = model.predict(X_train_kfold)
             y_pred_valid_kfold = model.predict(X_valid_kfold)
-            y_pred_test = model.predict(X_test)
+            y_pred_test = model.predict(X_test_temp)
             
             # Calculate Accuracy, F1, and MCC Values of the Validation set
             accuracy_valid = accuracy_score(y_valid_kfold, y_pred_valid_kfold)*100

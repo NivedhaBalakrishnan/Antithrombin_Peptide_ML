@@ -64,7 +64,7 @@ all_models = None
 # Get tuned models
 # all_models = hypertuning(X_training, y_training, X_test, y_test, k=5, iter=iter, seed=rs, note=note)
 
-mode = 'both' # or 'rfe' or 'sfs'
+mode = 'sfs' # or 'rfe' or 'sfs'
 
 
 # --------------------------------- Feature Selection

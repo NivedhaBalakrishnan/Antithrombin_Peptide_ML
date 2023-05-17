@@ -187,20 +187,20 @@ def hypertune(X_training, y_training, k=5, iter=200, seed=33, note=''):
 #         all_models = [svc_lin, logistic, random]
 
     if note == 'after_fs':
-        with open(class_dir+'/dependency/features/best_features_svcrbf.json') as f:
-                svcrbf_features = json.load(f)
+        # with open(class_dir+'/dependency/features/best_features_svcrbf.json') as f:
+        #         svcrbf_features = json.load(f)
         
         with open(class_dir+'/dependency/features/best_features_knn.json') as f:
                 knn_features = json.load(f)
         
-        with open(class_dir+'/dependency/features/best_features_xgb.json') as f:
-                xgb_features = json.load(f)
+        # with open(class_dir+'/dependency/features/best_features_xgb.json') as f:
+        #         xgb_features = json.load(f)
         
-        svc_rbf = tuning_model(X_training[svcrbf_features], y_training, svcrbf_params, k, iter, seed, note)
+        # svc_rbf = tuning_model(X_training[svcrbf_features], y_training, svcrbf_params, k, iter, seed, note)
         knn = tuning_model(X_training[knn_features], y_training, knn_params, k, iter, seed, note)
-        xgb = tuning_model(X_training[xgb_features], y_training, xgb_params, k, iter, seed, note)
+        # xgb = tuning_model(X_training[xgb_features], y_training, xgb_params, k, iter, seed, note)
     
-        all_models = [svc_rbf, knn, xgb]
+        all_models = [knn]
     
     else:
     
